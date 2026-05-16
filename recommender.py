@@ -8,19 +8,13 @@ def load_movies():
     return df
 
 def clean_data(df):
-    # Drop rows where genre or rating is missing
+    if df.empty:
+        return df
+
     df = df.dropna(subset=["genre", "imdb_rating"])
-
-    # Convert imdb_rating to float (it comes out of SQLite as string sometimes)
     df["imdb_rating"] = pd.to_numeric(df["imdb_rating"], errors="coerce")
-
-    # Drop rows where conversion failed (became NaN)
     df = df.dropna(subset=["imdb_rating"])
-
-    # Remove movies with 0.0 rating
     df = df[df["imdb_rating"] > 0]
-
-    # Clean up genre strings
     df["genre"] = df["genre"].str.strip()
 
     return df

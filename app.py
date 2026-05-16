@@ -1,13 +1,17 @@
 # app.py
 from flask import Flask, jsonify, request, render_template
-from flask import Flask, jsonify, request
 from recommender import load_movies, clean_data, get_recommendations
 from fetch_data import fetch_movie_by_title
+from database import create_tables
+import os
 
 app = Flask(__name__)
 
-# Load and clean data once when server starts
-# No need to reload from DB on every request
+# Create data folder and tables if they don't exist (important for Render)
+os.makedirs("data", exist_ok=True)
+create_tables()
+
+# Load data - will be empty on first deploy, that's okay
 df = load_movies()
 df = clean_data(df)
 
