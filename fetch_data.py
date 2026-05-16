@@ -14,7 +14,7 @@ def fetch_movie_by_title(title):
     }
 
     try:
-        response = requests.get(OMDB_BASE_URL, params=params, timeout=5)
+        response = requests.get(OMDB_Base_URL, params=params, timeout=5)
         data = response.json()
 
         if data.get("Response") == "True":
