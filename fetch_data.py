@@ -1,7 +1,10 @@
 # fetch_data.py
 import requests
-from config import OMDB_API_key, OMDB_Base_URL
+import os
 from database import insert_movie
+
+OMDB_API_key = os.environ.get("OMDB_API_key", "")
+OMDB_Base_URL = "http://www.omdbapi.com/"
 
 def fetch_movie_by_title(title):
     params = {
@@ -11,7 +14,7 @@ def fetch_movie_by_title(title):
     }
 
     try:
-        response = requests.get(OMDB_Base_URL, params=params, timeout=5)
+        response = requests.get(OMDB_BASE_URL, params=params, timeout=5)
         data = response.json()
 
         if data.get("Response") == "True":
@@ -28,15 +31,3 @@ def fetch_movie_by_title(title):
     except requests.exceptions.ConnectionError:
         print(f"Connection error fetching: {title}")
         return None
-
-
-# Test: fetch a small batch of movies
-if __name__ == "__main__":
-    movies_to_fetch = [
-        "Inception", "The Dark Knight", "Interstellar",
-        "The Matrix", "Fight Club", "Forrest Gump",
-        "The Godfather", "Pulp Fiction", "Goodfellas", "The Shawshank Redemption"
-    ]
-
-    for title in movies_to_fetch:
-        fetch_movie_by_title(title)
