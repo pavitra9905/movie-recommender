@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Recommender</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 8px;
+            color: #e50914;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 32px;
+        }
+
+        .search-box {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        input {
+            padding: 12px 20px;
+            width: 340px;
+            border-radius: 6px;
+            border: none;
+            font-size: 1rem;
+            background: #1e1e1e;
+            color: #fff;
+            outline: 1px solid #333;
+        }
+
+        button {
+            padding: 12px 24px;
+            background: #e50914;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        button:hover { background: #c40812; }
+
+        #error {
+            text-align: center;
+            color: #e50914;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        #results-title {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .card {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            width: 220px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .card .genre {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+
+        .card .rating {
+            font-size: 0.9rem;
+            color: #f5c518;
+            font-weight: bold;
+        }
+
+        .card .score {
+            font-size: 0.75rem;
+            color: #555;
+            margin-top: 6px;
+        }
+
+        .fetch-section {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid #222;
+        }
+
+        .fetch-section p {
+            color: #aaa;
+            margin-bottom: 16px;
+            font-size: 0.9rem;
+        }
+
+        #fetch-status {
+            margin-top: 12px;
+            color: #4caf50;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎬 Movie Recommender</h1>
+    <p class="subtitle">Find movies similar to what you love</p>
+
+    <div class="search-box">
+        <input type="text" id="movie-input" placeholder="e.g. Inception, The Matrix..." />
+        <button onclick="getRecommendations()">Recommend</button>
+    </div>
+
+    <div id="error"></div>
+    <div id="results-title"></div>
+    <div class="cards" id="cards"></div>
+
+    <div class="fetch-section">
+        <p>Movie not in database? Add it first:</p>
+        <div class="search-box">
+            <input type="text" id="fetch-input" placeholder="e.g. Oppenheimer" />
+            <button onclick="fetchMovie()">Add Movie</button>
+        </div>
+        <div id="fetch-status"></div>
+    </div>
+
+    <script>
+        async function getRecommendations() {
+            const title = document.getElementById("movie-input").value.trim();
+            const errorDiv = document.getElementById("error");
+            const cardsDiv = document.getElementById("cards");
+            const resultsTitle = document.getElementById("results-title");
+
+            errorDiv.textContent = "";
+            cardsDiv.innerHTML = "";
+            resultsTitle.textContent = "";
+
+            if (!title) {
+                errorDiv.textContent = "Please enter a movie title.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/recommend?title=${encodeURIComponent(title)}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || "Something went wrong.";
+                    return;
+                }
+
+                resultsTitle.textContent = `Showing recommendations for "${data.query}"`;
+
+                data.recommendations.forEach(movie => {
+                    const card = document.createElement("div");
+                    card.className = "card";
+                    card.innerHTML = `
+                        <h3>${movie.title}</h3>
+                        <div class="genre">${movie.genre}</div>
+                        <div class="rating">⭐ ${movie.imdb_rating}</div>
+                        <div class="score">Match score: ${movie.score}</div>
+                    `;
+                    cardsDiv.appendChild(card);
+                });
+
+            } catch (err) {
+                errorDiv.textContent = "Could not connect to server.";
+            }
+        }
+
+        async function fetchMovie() {
+            const title = document.getElementById("fetch-input").value.trim();
+            const statusDiv = document.getElementById("fetch-status");
+
+            statusDiv.textContent = "Fetching...";
+            statusDiv.style.color = "#aaa";
+
+            if (!title) {
+                statusDiv.textContent = "Please enter a title.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/fetch?title=${encodeURIComponent(title)}`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    statusDiv.textContent = data.error || "Could not fetch movie.";
+                    statusDiv.style.color = "#e50914";
+                    return;
+                }
+
+                statusDiv.textContent = `✓ ${data.movie.title} added successfully!`;
+                statusDiv.style.color = "#4caf50";
+
+            } catch (err) {
+                statusDiv.textContent = "Could not connect to server.";
+                statusDiv.style.color = "#e50914";
+            }
+        }
+
+        // Allow pressing Enter to search
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") getRecommendations();
+        });
+    </script>
+
+</body>
+</html>
