@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, redirect
 from recommender import load_movies, clean_data, get_recommendations
 from fetch_data import fetch_movie_by_title
 from database import create_tables
