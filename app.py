@@ -18,14 +18,7 @@ df = clean_data(df)
 
 @app.route("/")
 def home():
-    return jsonify({
-        "message": "Movie Recommendation API is running",
-        "endpoints": {
-            "all_movies": "/movies",
-            "recommend": "/recommend?title=Inception",
-            "fetch_new": "/fetch?title=Oppenheimer"
-        }
-    })
+    return redirect("/ui")
 
 @app.route("/ui")
 def ui():
