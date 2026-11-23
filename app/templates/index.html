@@ -3,55 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Movie Recommender</title>
+  <meta name="theme-color" content="#0b2a2e">
+  <meta name="description" content="Pick a movie you like and get similar recommendations.">
+  <title>Movie Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <header>
-    <h1>🎬 Movie Recommender</h1>
-    <p>Pick a movie you like, set your preferences, and get similar picks.</p>
+  <header class="top">
+    <span class="wordmark">Movie Finder</span>
   </header>
 
   <main>
-    <form id="filters">
-      <label class="wide">Movie you like
-        <input id="title" type="text" list="title-suggestions"
-               placeholder="e.g. Inception" autocomplete="off">
-        <datalist id="title-suggestions"></datalist>
-      </label>
+    <form id="finder" novalidate>
+      <h1>What should I watch after&hellip;</h1>
+      <input id="title" class="title-input" type="text" list="title-suggestions"
+             placeholder="a movie you liked" aria-label="A movie you liked"
+             autocomplete="off" spellcheck="false">
+      <datalist id="title-suggestions"></datalist>
 
-      <label>Genres <small>(Ctrl+click for several)</small>
-        <select id="genres" multiple size="6"></select>
-      </label>
+      <fieldset class="genres">
+        <legend>Genres</legend>
+        <div id="genre-chips" class="chips"></div>
+      </fieldset>
 
-      <div class="fields">
-        <label>Min rating
-          <input id="min-rating" type="number" min="0" max="10" step="0.1" placeholder="7.5">
-        </label>
-        <label>From year
-          <input id="min-year" type="number" min="1900" max="2100" placeholder="2000">
-        </label>
-        <label>To year
-          <input id="max-year" type="number" min="1900" max="2100" placeholder="2025">
-        </label>
-        <label>Max runtime (min)
-          <input id="max-runtime" type="number" min="1" placeholder="150">
-        </label>
-        <label>Results
-          <select id="limit">
-            <option value="5">5</option>
-            <option value="10" selected>10</option>
-            <option value="20">20</option>
+      <div class="controls">
+        <div class="field">
+          <div class="field-head">
+            <label for="min-rating">Minimum rating</label>
+            <output id="rating-out" for="min-rating">Any</output>
+          </div>
+          <input id="min-rating" type="range" min="0" max="9" step="0.5" value="0">
+        </div>
+
+        <div class="field">
+          <span id="years-label">Release years</span>
+          <div class="pair" role="group" aria-labelledby="years-label">
+            <input id="min-year" type="number" min="1900" max="2100" placeholder="From" aria-label="From year">
+            <input id="max-year" type="number" min="1900" max="2100" placeholder="To" aria-label="To year">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="max-runtime">Length</label>
+          <select id="max-runtime">
+            <option value="">Any length</option>
+            <option value="90">Under 90 minutes</option>
+            <option value="120">Under 2 hours</option>
+            <option value="150">Under 2.5 hours</option>
+            <option value="180">Under 3 hours</option>
           </select>
-        </label>
+        </div>
+
+        <div class="field">
+          <label for="limit">Show</label>
+          <select id="limit">
+            <option value="6">6 movies</option>
+            <option value="12" selected>12 movies</option>
+            <option value="24">24 movies</option>
+          </select>
+        </div>
       </div>
 
-      <button type="submit">Recommend</button>
+      <div class="actions">
+        <button type="submit" class="primary">Find movies</button>
+        <button type="button" id="clear" class="ghost">Clear</button>
+      </div>
     </form>
 
-    <p id="status" role="status"></p>
-    <section id="results" class="grid"></section>
+    <section id="summary" class="summary" hidden></section>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <section id="results" class="wall" aria-label="Recommendations"></section>
   </main>
+
+  <footer class="site-footer">
+    <p>Movie data comes from OMDb. Recommendations are content-based: they compare
+    genres, plot, director and cast, then favour well-rated, well-known films.</p>
+  </footer>
+
+  <dialog id="detail" class="detail" aria-labelledby="detail-title">
+    <button type="button" id="detail-close" class="close" aria-label="Close">&times;</button>
+    <div id="detail-body" class="detail-body"></div>
+  </dialog>
 
   <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>

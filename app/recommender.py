@@ -139,15 +139,25 @@ class Recommender:
             if np.isfinite(score[i])
         ]
 
+    def find(self, title: str) -> dict | None:
+        index = self._find_index(title)
+        if index is None:
+            return None
+        return self._to_result(index, 0.0, 0.0)
+
     def _to_result(self, index: int, score: float, similarity: float) -> dict:
         row = self.movies.iloc[index]
         return {
             "id": _scalar(row["id"]),
             "title": _scalar(row["title"]),
             "year": _scalar(row["year"]),
+            "runtime_minutes": _scalar(row["runtime_minutes"]),
             "genres": list(row["genres"]),
             "rating": _scalar(row["rating"]),
+            "vote_count": _scalar(row["vote_count"]),
+            "plot": _scalar(row["plot"]),
             "director": _scalar(row["director"]),
+            "actors": _scalar(row["actors"]),
             "poster_url": _scalar(row["poster_url"]),
             "similarity": round(float(similarity), 3),
             "score": round(float(score), 3),

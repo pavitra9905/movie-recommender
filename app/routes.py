@@ -17,7 +17,7 @@ def bad_request(error):
 @main.app_errorhandler(MovieNotFound)
 def movie_not_found(error):
     return jsonify(error=f"No movie found matching '{error}'. "
-                         "Try /movies/search?q=..."), 404
+                         "Check the spelling or pick a title from the suggestions."), 404
 
 
 @main.app_errorhandler(EmptyDatabase)
@@ -90,9 +90,13 @@ def recommend():
         "max_runtime": _number("max_runtime", int),
     }
 
-    results = get_recommender().recommend(title=title, limit=limit, **preferences)
+    recommender = get_recommender()
+    results = recommender.recommend(title=title, limit=limit, **preferences)
+    reference = recommender.find(title) if title else None
+
     return jsonify(
         query={"title": title, "limit": limit, **preferences},
+        reference=reference,
         count=len(results),
         results=results,
     )
