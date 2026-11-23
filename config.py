@@ -7,9 +7,10 @@ load_dotenv()
 
 def _database_url() -> str:
     url = os.getenv("DATABASE_URL", "")
-    # Render may supply "postgres://", but SQLAlchemy expects "postgresql://"
-    if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql://", 1)
+    # Render supplies "postgres://" or "postgresql://"; always use the psycopg2 driver
+    for prefix in ("postgres://", "postgresql://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg2://" + url[len(prefix):]
     return url
 
 
