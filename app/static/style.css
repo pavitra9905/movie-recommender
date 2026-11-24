@@ -313,3 +313,5 @@ dialog.detail[open] { animation: rise 0.25s ease-out; }
 @media (prefers-reduced-motion: reduce) {
   .wall.reveal .tile, .skeleton, dialog.detail[open] { animation: none; }
 }
+
+#catalog-size { margin: 0 0 0.5rem; color: var(--text); font-weight: 600; }

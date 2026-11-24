@@ -289,9 +289,28 @@ els.title.addEventListener("input", () => {
   }, 250);
 });
 
+async function showCatalogSize() {
+  try {
+    const { total_movies } = await getJSON("/movies/count");
+    document.getElementById("catalog-size").textContent =
+      `${total_movies.toLocaleString()} movies in the catalogue.`;
+  } catch {
+    // The count is optional, so ignore errors here
+  }
+}
+
 /* ---------- Start ---------- */
 
 async function init() {
+  await loadGenres();
+  const params = new URLSearchParams(location.search);
+  applyParams(params);
+  if ([...params.keys()].some((key) => key !== "limit")) runSearch(false);
+}
+
+
+async function init() {
+  showCatalogSize();
   await loadGenres();
   const params = new URLSearchParams(location.search);
   applyParams(params);

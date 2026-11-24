@@ -15,8 +15,8 @@ BASICS_FILE = "title.basics.tsv.gz"
 RATINGS_FILE = "title.ratings.tsv.gz"
 SEED_FILE = DATA_DIR / "seed_ids.csv"
 
-MIN_VOTES = 25_000
-SEED_SIZE = 2_000
+MIN_VOTES = 10_000
+SEED_SIZE = 5_000
 READ_CHUNK = 500_000
 
 
